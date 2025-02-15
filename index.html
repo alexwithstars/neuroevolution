@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="stylesheet" href="/src/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEAT AI</title>
+  </head>
+  <body>
+    <canvas id="gameCanvas" class="hide"></canvas>
+    <main class="main" id="main">
+      <section class="info">
+        <h2>Training process</h2>
+        <ul class="data">
+          <li>Generation: <span id="generation"></span></li>
+          <li>Species: <span id="species"></span></li>
+          <li>Avg. fitness: <span id="avgFitness"></span></li>
+        </ul>
+      </section>
+      <section class="progress">
+        <h3>Progress</h3>
+        <canvas id="progress"></canvas>
+      </section>
+    </main>
+    <section class="controls">
+      <button id="toggle">Start/Stop</button>
+      <button id="simulate">Simulate</button>
+    </section>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
