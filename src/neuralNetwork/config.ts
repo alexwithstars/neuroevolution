@@ -1,0 +1,41 @@
+import { plain, sigmoid, tanh } from '../misc/math'
+import { type NETWORK_CONFIG_INTERFACE, MUTATIONS, NeuronType } from './network.d'
+
+export const NETWORK_CONFIG: NETWORK_CONFIG_INTERFACE = {
+  SIZE: 200,
+  SURVIVAL_RATE: 0.2,
+  SPECIES_THRESHOLD: 0.6,
+  INITIAL_BIAS: 0,
+  INITIAL_WEIGHT: 0,
+  START_FEED_FORWARD: true,
+  DISTANCE_COEFOFFICIENTS: {
+    disjoint: 1.0,
+    average: 0.8
+  },
+  ACTIVATION_FUNCTION: {
+    [NeuronType.INPUT]: plain,
+    [NeuronType.HIDDEN]: tanh,
+    [NeuronType.OUTPUT]: sigmoid
+  },
+  MUTATION_CHANCE: {
+    [MUTATIONS.BIAS]: 0.4,
+    [MUTATIONS.NEW_BIAS]: 0.05,
+    [MUTATIONS.WEIGHT]: 0.9,
+    [MUTATIONS.NEW_WEIGHT]: 0.1,
+    [MUTATIONS.TOGGLE_CONNECTION]: 0.01,
+    [MUTATIONS.NEW_NEURON]: 0.1,
+    [MUTATIONS.REMOVE_NEURON]: 0.01,
+    [MUTATIONS.NEW_CONNECTION]: 0.3,
+    [MUTATIONS.REMOVE_CONNECTION]: 0.01
+  },
+  MUTATION_MAGNITUDE: {
+    [MUTATIONS.BIAS]: 0.01,
+    [MUTATIONS.NEW_BIAS]: 0.03,
+    [MUTATIONS.WEIGHT]: 0.01,
+    [MUTATIONS.NEW_WEIGHT]: 0.05
+  },
+  PHENOTYPE: {
+    DIAMETER: 20,
+    GAP: 10
+  }
+}
