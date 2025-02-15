@@ -20,10 +20,10 @@ I tried so hard to make the code as simple and readable as possible for anyone w
 4. Open the browser and go to the url that vite provides
 
 ### Usage
-- Key `s` toggles the training mode
-- Key `a` toggles the rendering mode
+- `Start/Stop` toggles the training mode
+- `Simulate` toggles the rendering mode
 - Both modes can't be active at the same time
-- The `Renderer` class can be instantiated with a `Game` object and a `HTMLCanvasElement`, without an agent and it will render the game with controls for the user (Arrow keys for the bot movement).
+- The `Renderer` class can be instantiated with a `Game` object, without an agent and it will render the game with controls for the user (Arrow keys for the bot movement).
 
 ## Note
 For now the project is not complete, and there are a lot of things to do, such as adding a better UI, and maybe a better game. But I hope you enjoy it anyway!
