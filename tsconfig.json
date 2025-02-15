@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    // language and environment
+    "target": "es2022",
+    
+    // type checking
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    
+    // emit
+    "outDir": "dist",
+    "declaration": true,
+  }
+}
