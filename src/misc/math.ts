@@ -199,3 +199,7 @@ export function centerF (n: number, element: number, gap: number): number {
 export function circularNumber (n: number, max: number): number {
   return (max + (n % max)) % max
 }
+
+export function shortestRotation (current: number, target: number): number {
+  return (target - current + 540) % 360 - 180
+}
