@@ -1,5 +1,6 @@
+import { GameInterface } from '../game/playground'
 import { randomInt, randomDouble, Position2d, layerLength, centerF, sigmoid } from '../misc/math'
-import { InputNeuron, NeatBrain } from './brain'
+import { NeatBrain } from './brain'
 import { NETWORK_CONFIG } from './config'
 import { MUTATIONS, NeuronType, type connectionId } from './network.d'
 import { Agent } from './population'
@@ -350,6 +351,7 @@ export class Phenotype {
 
     this.layers = Array(maxDepth + 1).fill(null).map(() => [])
     for (const neuronId of hiddenIds) {
+      if (depthMap[neuronId] === undefined) continue
       this.layers[depthMap[neuronId]].push(neuronId)
     }
     this.layers.reverse()
@@ -373,6 +375,7 @@ export class Phenotype {
 
   render (context: CanvasRenderingContext2D): void {
     for (const connection of this.genome.connectionGenes.values()) {
+      if (!connection.enabled) continue
       const inputPosition = this.renderMap.get(connection.inN)
       const outputPosition = this.renderMap.get(connection.outN)
       if (inputPosition === undefined || outputPosition === undefined) continue
@@ -390,10 +393,7 @@ export class Phenotype {
     for (const neuron of this.genome.neuronGenes.values()) {
       const position = this.renderMap.get(neuron.id)
       const value = this.brain.network[neuron.id].value
-      let hue = 0
-      if ([0, 4].includes(neuron.id)) {
-        hue = value / 360 * 120
-      } else hue = sigmoid(value) * 120
+      const hue = sigmoid(value) * 120
       if (position === undefined) continue
 
       context.fillStyle = '#fff'
@@ -415,19 +415,10 @@ export class Phenotype {
 
     context.fillStyle = '#fff'
     context.font = '12px Arial'
-    const names = [
-      'angle',
-      'speed',
-      'angular speed',
-      'distance',
-      'angle to ball'
-    ]
     let i = 0
-    for (const neuronId of this.layers[0]) {
-      const neuron = this.brain.network[neuronId]
-      if (!(neuron instanceof InputNeuron)) continue
-      const functionName = names[i++]
-      context.fillText(`${neuronId}: ${functionName}`, 10, 250 + 15 * neuronId)
+    for (const name of GameInterface.fixedNames) {
+      context.fillText(`${i}: ${name}`, 10, 290 + 15 * i)
+      i++
     }
   }
 }

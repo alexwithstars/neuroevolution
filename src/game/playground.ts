@@ -1,5 +1,5 @@
 import { Ball, Bot } from './objects'
-import { correctCollision, randomDouble } from '../misc/math'
+import { circularNumber, correctCollision, randomDouble, randomInt, shortestRotation, toRad } from '../misc/math'
 import type { inputSource, outputTarget } from '../neuralNetwork/network.d'
 import { GAME_CONFIG } from './config'
 import type { Agent } from '../neuralNetwork/population'
@@ -9,7 +9,8 @@ export class GameInterface {
   outputs: outputTarget[] = []
   getBotX: inputSource
   getBotY: inputSource
-  getBotAngle: inputSource
+  getBotCos: inputSource
+  getBotSin: inputSource
   getBotSpeed: inputSource
   getBotAngularSpeed: inputSource
   getBallX: inputSource
@@ -17,22 +18,34 @@ export class GameInterface {
   getBallSpeed: inputSource
   getBallDirection: inputSource
   getDistance: inputSource
-  getAngle: inputSource
+  getToBallSin: inputSource
+  getToBallCos: inputSource
   addBotSpeed: outputTarget
   addBotAngularSpeed: outputTarget
+  static fixedNames: string[] = [
+    'sinBot',
+    'cosBot',
+    'botSpeed',
+    'botAngularSpeed',
+    'distance',
+    'sinBall',
+    'cosBall'
+  ]
 
   constructor (game: Game) {
     this.getBotX = () => game.bot.position.x
     this.getBotY = () => game.bot.position.y
-    this.getBotAngle = () => game.bot.angle
+    this.getBotSin = () => Math.sin(toRad(game.bot.angle))
+    this.getBotCos = () => Math.cos(toRad(game.bot.angle))
     this.getBotSpeed = () => game.bot.speed
     this.getBotAngularSpeed = () => game.bot.angularSpeed
     this.getBallX = () => game.ball.position.x
     this.getBallY = () => game.ball.position.y
     this.getBallSpeed = () => game.ball.getSpeed()
     this.getBallDirection = () => game.ball.getDirectionDeg()
+    this.getToBallSin = () => Math.sin(toRad(game.getAngle()))
+    this.getToBallCos = () => Math.cos(toRad(game.getAngle()))
     this.getDistance = () => game.getDistance()
-    this.getAngle = () => game.getAngle()
     this.addBotSpeed = (delta: number) => {
       const maxDelta = game.bot.maxSpeed / GAME_CONFIG.PHYSICS_FREQUENCY
       game.bot.addSpeed(-maxDelta + delta * 2 * maxDelta)
@@ -43,14 +56,15 @@ export class GameInterface {
     }
     this.inputs = [
       // this.getBotX, this.getBotY,
-      this.getBotAngle, this.getBotSpeed,
+      this.getBotSin, this.getBotCos, this.getBotSpeed,
       this.getBotAngularSpeed,
       // this.getBallX, this.getBallY,
       // this.getBallSpeed, this.getBallDirection,
-      this.getDistance, this.getAngle
+      this.getDistance, this.getToBallSin, this.getToBallCos
     ]
     this.outputs = [
-      this.addBotSpeed, this.addBotAngularSpeed
+      // this.addBotSpeed,
+      this.addBotAngularSpeed
     ]
   }
 }
