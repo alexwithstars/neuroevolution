@@ -84,6 +84,9 @@ export class Game {
   deltaPositiveCounter: number
   deltaNegativeCounter: number
   botCollideCounter: number
+  botRotated: number
+  angleDistanceSum: number
+  rotateCounter: number
   constructor (width: number, height: number) {
     this.width = width
     this.height = height
@@ -102,6 +105,9 @@ export class Game {
     this.distanceSum = 0
     this.botTraveled = 0
     this.botCollideCounter = 0
+    this.botRotated = 0
+    this.angleDistanceSum = 0
+    this.rotateCounter = 0
     this.lastDistance = this.getDistance()
   }
 
@@ -113,11 +119,15 @@ export class Game {
     this.distanceSum = 0
     this.botTraveled = 0
     this.botCollideCounter = 0
+    this.botRotated = 0
+    this.angleDistanceSum = 0
+    this.rotateCounter = 0
     this.lastDistance = this.getDistance()
   }
 
   update (dt: number): void {
     this.botTraveled += this.bot.speed * dt
+    this.botRotated += this.bot.angularSpeed * dt
     this.ball.update(dt)
     this.bot.update(dt)
     this.solveBallCollision()
@@ -172,6 +182,8 @@ export class Game {
   solveScore (): void {
     const distance = this.getDistance()
     const deltaDistance = distance - this.lastDistance
+    this.angleDistanceSum += Math.abs(shortestRotation(this.bot.angle, this.getAngle()))
+    this.rotateCounter++
     if (deltaDistance > 0) {
       this.deltaPositive += deltaDistance
       this.deltaPositiveCounter += 1
@@ -184,6 +196,7 @@ export class Game {
     if (distance < this.bot.radius + this.ball.radius) {
       this.score += 1
       this.setRandomBallPosition()
+      this.lastDistance = this.getDistance()
     }
   }
 
@@ -197,13 +210,18 @@ export class Game {
     this.bot.setAngle(randomDouble(0, 360))
   }
 
-  setRandomBallPosition (): void {
+  setRandomBallPosition (facing: boolean = false): void {
     do {
       this.ball.setPosition(
         randomDouble(this.ball.radius, this.width - this.ball.radius),
         randomDouble(this.ball.radius, this.height - this.ball.radius)
       )
     } while (this.getDistance() < this.minimalInitialDistance)
+    if (facing) {
+      const angle = this.getAngle()
+      const newAngle = circularNumber(angle + randomInt(90, 270), 360)
+      this.bot.setAngle(newAngle)
+    }
     if (GAME_CONFIG.BALL.SHOULD_MOVE) this.ball.addRandomSpeed()
   }
 
@@ -213,7 +231,7 @@ export class Game {
     const dx = bx - botx
     const dy = by - boty
     const angle = Math.atan2(dy, dx) * 180 / Math.PI
-    return (360 + (angle % 360)) % 360
+    return circularNumber(angle, 360)
   }
 
   getDistance (): number {
@@ -222,10 +240,10 @@ export class Game {
     return Math.sqrt((bx - botx) ** 2 + (by - boty) ** 2)
   }
 
-  reset (): void {
+  reset (facing: boolean = false): void {
     this.score = 0
     this.setRandomBotPosition()
-    this.setRandomBallPosition()
+    this.setRandomBallPosition(facing)
     this.resetStatistics()
   }
 }
@@ -248,7 +266,9 @@ export class Playground {
 
   fitnessFunction (
     avgNormalizedDelta: number,
-    avgNormalizedBotTraveled: number
+    avgNormalizedBotTraveled: number,
+    avgNormalizedBotRotated: number,
+    avgNormalizedBotRotationDistance: number
   ): number {
     if (avgNormalizedDelta < 0 || avgNormalizedDelta > 1) {
       console.warn(avgNormalizedDelta)
@@ -258,7 +278,15 @@ export class Playground {
       console.warn(avgNormalizedBotTraveled)
       throw new Error('Avg normalized bot traveled must be between 0 and 1')
     }
-    const fitness = avgNormalizedDelta
+    if (avgNormalizedBotRotated < 0 || avgNormalizedBotRotated > 1) {
+      console.warn(avgNormalizedBotRotated)
+      throw new Error('Avg normalized bot rotated must be between 0 and 1')
+    }
+    if (avgNormalizedBotRotationDistance < 0 || avgNormalizedBotRotationDistance > 1) {
+      console.warn(avgNormalizedBotRotationDistance)
+      throw new Error('Avg normalized bot rotation distance must be between 0 and 1')
+    }
+    const fitness = 1 - avgNormalizedBotRotationDistance
     if (fitness < 0) {
       console.warn(fitness)
       throw new Error('Fitness cannot be negative')
@@ -267,31 +295,45 @@ export class Playground {
   }
 
   evaluate (agent: Agent, game: Game): void {
+    const maxSpeedPerStep = game.bot.maxSpeed / GAME_CONFIG.PHYSICS_FREQUENCY
+    const totalSteps = GAME_CONFIG.TOTAL_TIME * GAME_CONFIG.PHYSICS_FREQUENCY
     const maxTravel = game.bot.maxSpeed * GAME_CONFIG.TOTAL_TIME
+    const maxRotated = game.bot.maxAngularSpeed * GAME_CONFIG.TOTAL_TIME
     let avgNormalizedDelta = 0
     let avgNormalizedBotTraveled = 0
+    let avgNormalizedBotRotated = 0
+    let avgNormalizedBotRotationDistance = 0
     for (let i = 0; i < GAME_CONFIG.RUNS; i++) {
       this.calculatedTimeMs = 0
-      game.reset()
+      // const facing = randomInt(0, 1) === 1
+      game.reset(true)
       while (this.calculatedTimeMs < this.totalTimeMs) {
         agent.think()
         game.update(this.targetFrameTimeSec)
         this.calculatedTimeMs += this.targetFrametimeMs
       }
+      // console.log(game.deltaNegative, game.deltaPositive)
+      // console.log(game.deltaNegativeCounter, game.deltaPositiveCounter)
       const avgDeltaPositive = game.deltaPositive / game.deltaPositiveCounter
-      const normalizedDeltaPositive = avgDeltaPositive / game.bot.maxSpeed
+      const normalizedDeltaPositive = avgDeltaPositive / maxSpeedPerStep
       const avgDeltaNegative = game.deltaNegative / game.deltaNegativeCounter
-      const normalizedDeltaNegative = avgDeltaNegative / game.bot.maxSpeed
+      const normalizedDeltaNegative = avgDeltaNegative / maxSpeedPerStep
       const deltaPositiveScale = 5
       const avgDelta = normalizedDeltaNegative / (1 + normalizedDeltaPositive * deltaPositiveScale)
       avgNormalizedDelta += avgDelta
       avgNormalizedBotTraveled += game.botTraveled / maxTravel
+      avgNormalizedBotRotated += Math.abs(game.botRotated) / maxRotated
+      avgNormalizedBotRotationDistance += (game.angleDistanceSum / totalSteps) / 180
     }
     avgNormalizedDelta /= GAME_CONFIG.RUNS
     avgNormalizedBotTraveled /= GAME_CONFIG.RUNS
+    avgNormalizedBotRotated /= GAME_CONFIG.RUNS
+    avgNormalizedBotRotationDistance /= GAME_CONFIG.RUNS
     agent.fitness = this.fitnessFunction(
       avgNormalizedDelta,
-      avgNormalizedBotTraveled
+      avgNormalizedBotTraveled,
+      avgNormalizedBotRotated,
+      avgNormalizedBotRotationDistance
     )
   }
 }
