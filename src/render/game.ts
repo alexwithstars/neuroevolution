@@ -157,16 +157,5 @@ export class GameRenderer {
     if (this.phenotype === null) return
 
     this.phenotype.render(this.ctx)
-
-    // const scale = this.physicsFrequencyPerSecond / 4
-    // this.ctx.strokeStyle = '#f00'
-    // this.ctx.lineWidth = 3
-    // this.ctx.beginPath()
-    // this.ctx.moveTo(ball.position.x, ball.position.y)
-    // const nextX = ball.position.x + scale * ball.position.x - scale * ball.oldPosition.x
-    // const nextY = ball.position.y + scale * ball.position.y - scale * ball.oldPosition.y
-    // this.ctx.lineTo(nextX, nextY)
-    // this.ctx.stroke()
-    // this.ctx.closePath()
   }
 }
