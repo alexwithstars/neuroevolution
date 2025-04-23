@@ -295,3 +295,15 @@ export class Playground {
     )
   }
 }
+
+export function autoBot (game: Game): void {
+  const botAngle = game.bot.angle
+  const minDistance = shortestRotation(botAngle, game.getAngle())
+  if (game.getAngle() !== botAngle) {
+    const maxDelta = game.bot.maxAngularSpeed / GAME_CONFIG.PHYSICS_FREQUENCY
+    const delta = shortestRotation(game.bot.angularSpeed, minDistance)
+    game.bot.addAngularSpeed(Math.min(delta, maxDelta))
+  }
+  const maxDelta = game.bot.maxSpeed / GAME_CONFIG.PHYSICS_FREQUENCY
+  game.bot.addSpeed(Math.abs(minDistance) < 60 ? maxDelta : -maxDelta)
+}

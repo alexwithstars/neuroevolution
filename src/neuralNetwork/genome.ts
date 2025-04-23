@@ -140,7 +140,7 @@ export class Genome {
     const disjoint = disjointConnections + disjointNeurons
     average = average / (equalConnections + equalNeurons)
     return this.distanceConf.disjoint * disjoint / maxLength +
-    this.distanceConf.average * average
+      this.distanceConf.average * average
   }
 
   mutate (): void {

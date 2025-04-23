@@ -1,5 +1,5 @@
 import { GAME_CONFIG } from '../game/config'
-import { Game } from '../game/playground'
+import { autoBot, Game } from '../game/playground'
 import { toRad } from '../misc/math'
 import { canvasDPI, checkInstance } from '../misc/utils'
 import { Phenotype } from '../neuralNetwork/genome'
@@ -64,6 +64,7 @@ export class GameRenderer {
     this.raf = window.requestAnimationFrame((time: number) => {
       this.lastTimeMs = time
       this.calculatedTimeMs = time
+      this.game.reset(true)
       this.loop(time)
     })
   }
@@ -74,8 +75,9 @@ export class GameRenderer {
     this.lastTimeMs = time
     if (elapsedTimeInSeconds >= 1) return
     while (this.calculatedTimeMs <= time) {
-      this.game.update(this.targetFrameTimeSec)
       this.control()
+      // autoBot(this.game)
+      this.game.update(this.targetFrameTimeSec)
       this.calculatedTimeMs += this.targetFrameTimeMs
     }
     this.draw()
