@@ -20,16 +20,16 @@ export class GameInterface {
   getDistance: inputSource
   getToBallSin: inputSource
   getToBallCos: inputSource
+  getToBallAngle: inputSource
   addBotSpeed: outputTarget
   addBotAngularSpeed: outputTarget
   static fixedNames: string[] = [
-    'sinBot',
-    'cosBot',
     'botSpeed',
     'botAngularSpeed',
+    'toBallAngle',
     'distance',
-    'sinBall',
-    'cosBall'
+    'addSpeed',
+    'addAngularSpeed'
   ]
 
   constructor (game: Game) {
@@ -45,25 +45,29 @@ export class GameInterface {
     this.getBallDirection = () => game.ball.getDirectionDeg()
     this.getToBallSin = () => Math.sin(toRad(game.getAngle()))
     this.getToBallCos = () => Math.cos(toRad(game.getAngle()))
+    this.getToBallAngle = () => shortestRotation(game.bot.angle, game.getAngle())
     this.getDistance = () => game.getDistance()
     this.addBotSpeed = (delta: number) => {
       const maxDelta = game.bot.maxSpeed / GAME_CONFIG.PHYSICS_FREQUENCY
       game.bot.addSpeed(-maxDelta + delta * 2 * maxDelta)
     }
     this.addBotAngularSpeed = (delta: number) => {
-      const maxDelta = game.bot.maxAngularSpeed / GAME_CONFIG.PHYSICS_FREQUENCY
+      const maxDelta = game.bot.maxAngularSpeed
       game.bot.addAngularSpeed(-maxDelta + delta * 2 * maxDelta)
     }
     this.inputs = [
       // this.getBotX, this.getBotY,
-      this.getBotSin, this.getBotCos, this.getBotSpeed,
+      // this.getBotSin, this.getBotCos,
+      this.getBotSpeed,
       this.getBotAngularSpeed,
       // this.getBallX, this.getBallY,
       // this.getBallSpeed, this.getBallDirection,
-      this.getDistance, this.getToBallSin, this.getToBallCos
+      // this.getToBallSin, this.getToBallCos
+      this.getToBallAngle,
+      this.getDistance
     ]
     this.outputs = [
-      // this.addBotSpeed,
+      this.addBotSpeed,
       this.addBotAngularSpeed
     ]
   }
@@ -286,7 +290,7 @@ export class Playground {
       console.warn(avgNormalizedBotRotationDistance)
       throw new Error('Avg normalized bot rotation distance must be between 0 and 1')
     }
-    const fitness = 1 - avgNormalizedBotRotationDistance
+    const fitness = avgNormalizedDelta
     if (fitness < 0) {
       console.warn(fitness)
       throw new Error('Fitness cannot be negative')
@@ -309,11 +313,10 @@ export class Playground {
       game.reset(true)
       while (this.calculatedTimeMs < this.totalTimeMs) {
         agent.think()
+        // autoBot(game)
         game.update(this.targetFrameTimeSec)
         this.calculatedTimeMs += this.targetFrametimeMs
       }
-      // console.log(game.deltaNegative, game.deltaPositive)
-      // console.log(game.deltaNegativeCounter, game.deltaPositiveCounter)
       const avgDeltaPositive = game.deltaPositive / game.deltaPositiveCounter
       const normalizedDeltaPositive = avgDeltaPositive / maxSpeedPerStep
       const avgDeltaNegative = game.deltaNegative / game.deltaNegativeCounter

@@ -6,7 +6,7 @@ export const GAME_CONFIG: GAME_CONFIG_INTERFACE = {
   PHYSICS_FREQUENCY: 60,
   SIMULATED_SECONDS: 1,
   TOTAL_TIME: 30,
-  RUNS: 3,
+  RUNS: 2,
   BOT: {
     MAX_SPEED: 100,
     MAX_ANGULAR_SPEED: 180,
@@ -14,8 +14,8 @@ export const GAME_CONFIG: GAME_CONFIG_INTERFACE = {
   },
   BALL: {
     RADIUS: 5,
-    MIN_SPEED: 50,
-    MAX_SPEED: 100,
+    MIN_SPEED: 10,
+    MAX_SPEED: 50,
     SHOULD_MOVE: false
   },
   PLAYER: {
