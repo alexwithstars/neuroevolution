@@ -1,9 +1,12 @@
 import { GAME_CONFIG } from '../game/config'
-import { autoBot, Game } from '../game/playground'
 import { toRad } from '../misc/math'
 import { canvasDPI, checkInstance } from '../misc/utils'
 import { Phenotype } from '../neuralNetwork/genome'
 import { Agent } from '../neuralNetwork/population'
+import { autoBot, Game } from '../game/playground'
+
+// this is used in development
+export { autoBot }
 
 export class GameRenderer {
   game: Game
