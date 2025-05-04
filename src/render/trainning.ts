@@ -8,6 +8,7 @@ export class TrainningRenderer {
   generationElement: HTMLElement
   speciesElement: HTMLElement
   avgFitnessElement: HTMLElement
+  bestFitnessElement: HTMLElement
   toggleButton: HTMLElement
   simulateButton: HTMLElement
   population: Population
@@ -24,6 +25,7 @@ export class TrainningRenderer {
     this.generationElement = checkInstance(document.getElementById('generation'), HTMLElement)
     this.speciesElement = checkInstance(document.getElementById('species'), HTMLElement)
     this.avgFitnessElement = checkInstance(document.getElementById('avgFitness'), HTMLElement)
+    this.bestFitnessElement = checkInstance(document.getElementById('bestFitness'), HTMLElement)
     this.toggleButton = checkInstance(document.getElementById('toggle'), HTMLElement)
     this.simulateButton = checkInstance(document.getElementById('simulate'), HTMLElement)
 
@@ -48,10 +50,11 @@ export class TrainningRenderer {
   }
 
   renderInfo (): void {
-    const { generation, species, avgFitness } = this.population
+    const { generation, species, avgFitness, bestFitness } = this.population
     this.generationElement.textContent = `${generation}`
     this.speciesElement.textContent = `${species.size}`
     this.avgFitnessElement.textContent = `${avgFitness.toFixed(4)}`
+    this.bestFitnessElement.textContent = `${bestFitness.toFixed(4)}`
   }
 
   renderProgress (): void {

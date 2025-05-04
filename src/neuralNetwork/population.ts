@@ -107,6 +107,7 @@ export class Population {
   playground: Playground
   generation: number
   avgFitness: number
+  bestFitness: number
   next: boolean
   running: boolean
   progress: number
@@ -126,6 +127,7 @@ export class Population {
     this.games = []
     this.generation = 0
     this.avgFitness = 0
+    this.bestFitness = 0
     this.next = false
     this.running = false
     this.progress = 0
@@ -201,10 +203,13 @@ export class Population {
 
   updateStats (): void {
     this.avgFitness = 0
+    let max = 0
     for (const agent of this.agents.values()) {
       this.avgFitness += agent.fitness
+      if (agent.fitness > max) max = agent.fitness
     }
     this.avgFitness /= this.agents.size
+    this.bestFitness = max
   }
 
   async evaluate (): Promise<void> {
